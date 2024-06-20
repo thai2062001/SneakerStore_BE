@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  role_id       Int       @id @default(autoincrement())
+  role_name     String    @unique
+  users         User[]
+}
+
+model User {
+  user_id       Int       @id @default(autoincrement())
+  username      String?   @unique
+  email         String    @unique
+  password      String
+  role_id       Int
+  addresses     Address[]
+  orders        Order[]
+  reviews       Review[]
+  favorites     Favorite[] // Add relation to Favorite
+  role          Role      @relation(fields: [role_id], references: [role_id])
+}
+
+model Brand {
+  brand_id      Int       @id @default(autoincrement())
+  name          String
+  products      Product[]
+  logo_url      String?
+}
+
+model Category {
+  category_id   Int          @id @default(autoincrement())
+  name          String
+  products      Product[]
+}
+
+model Product {
+  product_id    Int       @id @default(autoincrement())
+  name          String
+  description   String
+  price         Float
+  image_url     String
+  brand_id      Int
+  category_id    Int?      // Add categoryId field
+  
+  brand         Brand     @relation(fields: [brand_id], references: [brand_id])
+  category      Category? @relation(fields: [category_id], references: [category_id])
+  orderItems    OrderItem[]
+  reviews       Review[]
+  stock         Stock[]
+  favorites     Favorite[] // Add relation to Favorite
+}
+
+model Favorite {
+  favorite_id   Int       @id @default(autoincrement())
+  user_id       Int
+  product_id    Int
+  user          User      @relation(fields: [user_id], references: [user_id])
+  product       Product   @relation(fields: [product_id], references: [product_id])
+
+  @@unique([user_id, product_id])
+}
+
+model Order {
+  order_id      Int        @id @default(autoincrement())
+  user_id       Int
+  status        String
+  totalAmount   Float
+  createdAt     DateTime
+  user          User       @relation(fields: [user_id], references: [user_id])
+  orderItems    OrderItem[]
+  invoice       Invoice?
+}
+
+model OrderItem {
+  orderItem_id  Int      @id @default(autoincrement())
+  orderId       Int
+  productId     Int
+  quantity      Int
+  price         Float
+  size          String
+  color         String
+
+  order         Order    @relation(fields: [orderId], references: [order_id])
+  product       Product  @relation(fields: [productId], references: [product_id])
+}
+
+model Review {
+  review_id     Int      @id @default(autoincrement())
+  productId     Int
+  userId        Int
+  rating        Int
+  comment       String
+  createdAt     DateTime
+  product       Product  @relation(fields: [productId], references: [product_id])
+  user          User     @relation(fields: [userId], references: [user_id])
+}
+
+model Address {
+  address_id    Int      @id @default(autoincrement())
+  user_id       Int
+  street        String
+  city          String
+  country       String
+  user          User     @relation(fields: [user_id], references: [user_id])
+}
+
+model Stock {
+  stock_id      Int      @id @default(autoincrement())
+  product_id    Int
+  size          String
+  color         String
+  quantity      Int
+  product       Product  @relation(fields: [product_id], references: [product_id])
+}
+
+model Invoice {
+  invoice_id    Int      @id @default(autoincrement())
+  order_id      Int      @unique
+  date          DateTime
+  amount        Float
+  order         Order    @relation(fields: [order_id], references: [order_id])
+}
