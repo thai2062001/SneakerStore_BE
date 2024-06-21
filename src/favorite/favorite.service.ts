@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
@@ -7,14 +7,37 @@ import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 export class FavoriteService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createFavoriteDto: CreateFavoriteDto) {
-    return this.prisma.favorite.create({
-      data: createFavoriteDto,
+  async create(createFavoriteDto: CreateFavoriteDto[]) {
+    // Validate if all products exist
+    const productIds = createFavoriteDto.flatMap((dto) => dto.product_ids);
+    const existingProducts = await this.prisma.product.findMany({
+      where: { product_id: { in: productIds } },
+    });
+
+    if (existingProducts.length !== productIds.length) {
+      throw new BadRequestException('One or more products do not exist');
+    }
+
+    // Create favorite records
+    const favoritesData = createFavoriteDto.flatMap((dto) =>
+      dto.product_ids.map((product_id) => ({
+        user_id: dto.user_id,
+        product_id: product_id,
+      }))
+    );
+
+    return this.prisma.favorite.createMany({
+      data: favoritesData,
     });
   }
 
+
   findAll() {
-    return this.prisma.favorite.findMany();
+    return this.prisma.favorite.findMany({
+      include: {
+        product: true,
+      },
+    });
   }
 
   findOne(id: number) {

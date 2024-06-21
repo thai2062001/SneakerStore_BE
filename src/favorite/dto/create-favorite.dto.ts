@@ -7,8 +7,8 @@ export class CreateFavoriteDto {
   @IsNotEmpty()
   user_id: number;
 
-  @ApiProperty({ example: 1, description: 'Product ID' })
-  @IsInt()
-  @IsNotEmpty()
-  product_id: number;
+  @ApiProperty({ example: 1, description: 'Array of Product IDs' })
+  @IsNotEmpty({ each: true })
+  @IsInt({ each: true })
+  product_ids: number[];
 }

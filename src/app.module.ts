@@ -14,9 +14,10 @@ import { AddressModule } from './address/address.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { StockModule } from './stock/stock.module';
 import { InvoiceModule } from './invoice/invoice.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [ RoleModule, UserModule, BrandModule, CategoryModule, ProductModule, OrderModule, OrderItemModule, ReviewModule, AddressModule, FavoriteModule, StockModule, InvoiceModule],
+  imports: [ RoleModule, UserModule, BrandModule, CategoryModule, ProductModule, OrderModule, OrderItemModule, ReviewModule, AddressModule, FavoriteModule, StockModule, InvoiceModule, AuthModule],
   providers:[PrismaService],
 })
 export class AppModule {}

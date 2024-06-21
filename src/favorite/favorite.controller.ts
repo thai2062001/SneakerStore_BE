@@ -1,19 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete,UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { FavoriteService } from './favorite.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @ApiTags('favorite')
 @Controller('favorite')
 export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}
 
+  
+  @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({ summary: 'Create favorite' })
   @ApiResponse({ status: 201, description: 'The favorite has been successfully created.' })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  create(@Body() createFavoriteDto: CreateFavoriteDto) {
+  create(@Body() createFavoriteDto: CreateFavoriteDto[]) {
     return this.favoriteService.create(createFavoriteDto);
   }
 
@@ -40,6 +43,8 @@ export class FavoriteController {
     return this.favoriteService.update(+id, updateFavoriteDto);
   }
 
+  
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete favorite' })
   @ApiResponse({ status: 200, description: 'The favorite has been successfully deleted.' })
