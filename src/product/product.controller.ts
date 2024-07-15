@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException ,Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -8,6 +8,12 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/s
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
+
+  @Get()
+  async getProducts(@Query() query: any) {
+    return await this.productService.getFilteredProducts(query);
+  }
+
 
   @Post()
   @ApiOperation({ summary: 'Create a new product' })

@@ -18,12 +18,24 @@ model User {
   username      String?   @unique
   email         String    @unique
   password      String
+  phone_number  String
+  gender        String
   role_id       Int
   addresses     Address[]
   orders        Order[]
   reviews       Review[]
-  favorites     Favorite[] // Add relation to Favorite
+  favorites     Favorite[]
+  carts         Cart[]
   role          Role      @relation(fields: [role_id], references: [role_id])
+}
+
+model Address {
+  address_id    Int      @id @default(autoincrement())
+  user_id       Int
+  street        String
+  city          String
+  country       String
+  user          User     @relation(fields: [user_id], references: [user_id])
 }
 
 model Brand {
@@ -40,20 +52,66 @@ model Category {
 }
 
 model Product {
-  product_id    Int       @id @default(autoincrement())
-  name          String
-  description   String
-  price         Float
-  image_url     String
-  brand_id      Int
-  category_id    Int?      // Add categoryId field
-  
-  brand         Brand     @relation(fields: [brand_id], references: [brand_id])
-  category      Category? @relation(fields: [category_id], references: [category_id])
-  orderItems    OrderItem[]
-  reviews       Review[]
-  stock         Stock[]
-  favorites     Favorite[] // Add relation to Favorite
+  product_id   Int            @id @default(autoincrement())
+  name         String
+  description  String
+  price        Float
+  image_url    String
+  brand_id     Int
+  gender       String
+  category_id  Int?
+
+  brand        Brand          @relation(fields: [brand_id], references: [brand_id])
+  category     Category?      @relation(fields: [category_id], references: [category_id])
+  orderItems   OrderItem[]
+  reviews      Review[]
+  stock        Stock[]
+  favorites    Favorite[]
+  images       ProductImage[]
+  cartItems    CartItem[]  @relation("ProductCartItems")
+}
+model ProductImage {
+  image_id         Int       @id @default(autoincrement())
+  product_id       Int
+  image_url        String
+  product          Product   @relation(fields: [product_id], references: [product_id])
+}
+
+model CartItem {
+  cartItem_id  Int       @id @default(autoincrement())
+  cart_id      Int
+  product_id   Int
+  quantity     Int
+    color        String?   // Add color field
+  size         String?   // Add size field
+  product      Product    @relation(fields: [product_id], references: [product_id], name: "ProductCartItems")
+  cart         Cart      @relation(fields: [cart_id], references: [cart_id])
+  @@unique([cart_id, product_id])
+}
+
+
+
+model Cart {
+  cart_id       Int       @id @default(autoincrement())
+  user_id       Int
+  createdAt     DateTime  @default(now())
+  user          User      @relation(fields: [user_id], references: [user_id])
+  cartItems     CartItem[]
+
+  @@unique([user_id])
+}
+
+
+
+model Stock {
+  stock_id      Int      @id @default(autoincrement())
+  product_id    Int
+  size          String
+  color         String
+  quantity      Int
+  product       Product  @relation(fields: [product_id], references: [product_id])
+
+  @@unique([product_id, size, color])  // Unique constraint
 }
 
 model Favorite {
@@ -71,7 +129,7 @@ model Order {
   user_id       Int
   status        String
   totalAmount   Float
-  createdAt     DateTime
+  createdAt     DateTime   @default(now())
   user          User       @relation(fields: [user_id], references: [user_id])
   orderItems    OrderItem[]
   invoice       Invoice?
@@ -96,33 +154,15 @@ model Review {
   userId        Int
   rating        Int
   comment       String
-  createdAt     DateTime
+  createdAt     DateTime @default(now())
   product       Product  @relation(fields: [productId], references: [product_id])
   user          User     @relation(fields: [userId], references: [user_id])
-}
-
-model Address {
-  address_id    Int      @id @default(autoincrement())
-  user_id       Int
-  street        String
-  city          String
-  country       String
-  user          User     @relation(fields: [user_id], references: [user_id])
-}
-
-model Stock {
-  stock_id      Int      @id @default(autoincrement())
-  product_id    Int
-  size          String
-  color         String
-  quantity      Int
-  product       Product  @relation(fields: [product_id], references: [product_id])
 }
 
 model Invoice {
   invoice_id    Int      @id @default(autoincrement())
   order_id      Int      @unique
-  date          DateTime
+  date          DateTime @default(now())
   amount        Float
   order         Order    @relation(fields: [order_id], references: [order_id])
 }

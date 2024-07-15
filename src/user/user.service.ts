@@ -10,13 +10,31 @@ export class UserService {
 
   async createUser(data: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    return this.prisma.user.create({
-      data: {
-        username: data.username,
-        email: data.email,
-        password: hashedPassword,
-        role_id: data.role_id,
-      },
+
+    // Start a transaction
+    return this.prisma.$transaction(async (prisma) => {
+      // First, create the user
+      const user = await prisma.user.create({
+        data: {
+          username: data.username,
+          email: data.email,
+          password: hashedPassword,
+          role_id: data.role_id,
+          phone_number: data.phone_number,
+          gender: data.gender,
+        },
+      });
+
+      // Then, create the cart for the newly created user
+      await prisma.cart.create({
+        data: {
+          user_id: user.user_id,
+          // createAt will be handled automatically by Prisma
+        },
+      });
+
+      // Return the created user
+      return user;
     });
   }
 
@@ -25,6 +43,8 @@ export class UserService {
       username: data.username,
       email: data.email,
       role_id: data.role_id,
+      phone_number: data.phone_number,
+      gender: data.gender,
     };
 
     if (data.password) {

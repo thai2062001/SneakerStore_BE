@@ -19,4 +19,13 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsInt()
   role_id: number;
+
+  @ApiProperty({ example: "0987581794", description: 'The phone number ' })
+  @IsNotEmpty()
+
+  phone_number: string;
+  @ApiProperty({ example: "Male", description: 'The gender ' })
+  @IsNotEmpty()
+
+  gender: string;
 }

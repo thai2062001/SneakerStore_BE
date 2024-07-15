@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+// src/app.module.ts
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
@@ -15,9 +16,37 @@ import { FavoriteModule } from './favorite/favorite.module';
 import { StockModule } from './stock/stock.module';
 import { InvoiceModule } from './invoice/invoice.module';
 import { AuthModule } from './auth/auth.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ProductImageModule } from './product-image/product-image.module';
+import { CartItemModule } from './cart-item/cart-item.module';
+import { CartModule } from './cart/cart.module';
 
+import * as cors from 'cors';
 @Module({
-  imports: [ RoleModule, UserModule, BrandModule, CategoryModule, ProductModule, OrderModule, OrderItemModule, ReviewModule, AddressModule, FavoriteModule, StockModule, InvoiceModule, AuthModule],
-  providers:[PrismaService],
+  imports: [
+    RoleModule,
+    UserModule,
+    BrandModule,
+    CategoryModule,
+    ProductModule,
+    OrderModule,
+    OrderItemModule,
+    ReviewModule,
+    AddressModule,
+    FavoriteModule,
+    StockModule,
+    InvoiceModule,
+    AuthModule,
+    ProductImageModule,
+    CartItemModule,
+    CartModule,
+    
+  ],
+  controllers: [AppController],
+  providers: [AppService, PrismaService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(cors()).forRoutes('*');
+  }
+}

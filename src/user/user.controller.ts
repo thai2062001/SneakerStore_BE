@@ -18,8 +18,8 @@ export class UserController {
     return this.userService.createUser(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth('access-token')
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'Return all users.' })
