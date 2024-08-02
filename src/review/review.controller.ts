@@ -44,6 +44,11 @@ export class ReviewController {
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.reviewService.deleteReview(id);
   }
+  @Get('product/:productId')
+async getReviewsByProductId(@Param('productId') productId: string) {
+  return this.reviewService.getReviewsByProductId(productId);
+}
+
 
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a review by ID' })

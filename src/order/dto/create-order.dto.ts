@@ -34,7 +34,6 @@ export class CreateOrderDto {
   status: string;
 
   @ApiProperty({ example: 150.00 })
-  @IsNumber()
   totalAmount: number;
 
   @ApiProperty({ example: '2024-06-20T10:00:00Z' })
@@ -42,6 +41,9 @@ export class CreateOrderDto {
   @Transform(({ value }) => new Date(value), { toClassOnly: true })
   createdAt: Date;
 
+  isCanceled:boolean
+
+  canceledAt:Date;
   @ApiProperty({ type: [CreateOrderItemDto] })
   @IsArray()
   @ValidateNested({ each: true })

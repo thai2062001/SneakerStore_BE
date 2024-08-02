@@ -20,6 +20,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ProductImageModule } from './product-image/product-image.module';
 import { CartItemModule } from './cart-item/cart-item.module';
 import { CartModule } from './cart/cart.module';
+import { NotificationModule } from './notification/notification.module';
 
 import * as cors from 'cors';
 @Module({
@@ -40,6 +41,7 @@ import * as cors from 'cors';
     ProductImageModule,
     CartItemModule,
     CartModule,
+    NotificationModule,
     
   ],
   controllers: [AppController],

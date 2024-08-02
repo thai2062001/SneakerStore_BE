@@ -403,24 +403,6 @@ async function main() {
             ],
         });
 
-        // await prisma.review.createMany({
-        //     data: [
-        //         {
-        //             productId: 1,
-        //             userId: 1,
-        //             rating: 5,
-        //             comment: 'Great running shoes!',
-        //             createdAt: new Date(),
-        //         },
-        //         {
-        //             productId: 2,
-        //             userId: 2,
-        //             rating: 4,
-        //             comment: 'Very comfortable',
-        //             createdAt: new Date(),
-        //         },
-        //     ],
-        // });
         async function createReviews() {
             const reviews = [];
             for (let productId = 1; productId <= 16; productId++) {
@@ -471,6 +453,65 @@ async function main() {
                 },
             ],
         });
+        try {
+            // Xóa hết dữ liệu trong bảng notification nếu có
+            await prisma.notification.deleteMany();
+        
+            // Tạo dữ liệu mẫu cho bảng notification
+            await prisma.notification.createMany({
+              data: [
+                {
+                  user_id: 1,
+                  type: 'Password Change',
+                  message: 'Your password has been successfully changed.',
+                  createdAt: new Date(),
+                  isRead: false,
+                },
+                {
+                  user_id: 2,
+                  type: 'Address Update',
+                  message: 'Your address information has been updated.',
+                  createdAt: new Date(),
+                  isRead: false,
+                },
+                {
+                  user_id: 3,
+                  type: 'Order Shipped',
+                  message: 'Your order #12345 has been shipped.',
+                  createdAt: new Date(),
+                  isRead: false,
+                },
+                {
+                  user_id: 4,
+                  type: 'New Review',
+                  message: 'A new review has been posted on your product.',
+                  createdAt: new Date(),
+                  isRead: false,
+                },
+                {
+                  user_id: 5,
+                  type: 'Account Activation',
+                  message: 'Your account has been activated.',
+                  createdAt: new Date(),
+                  isRead: false,
+                },
+                {
+                  user_id: 1,
+                  type: 'Promotion',
+                  message: 'Get 20% off on your next purchase.',
+                  createdAt: new Date(),
+                  isRead: false,
+                },
+                // Thêm các thông báo khác nếu cần
+              ],
+            });
+        
+            console.log('Notifications created successfully');
+          } catch (error) {
+            console.error('Error creating notifications:', error);
+          } finally {
+            await prisma.$disconnect();
+          }
 
 
         const sizes = ['S', 'M', 'L', 'XL'];

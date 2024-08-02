@@ -3,23 +3,45 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
+import { NotificationService } from './../notification/notification.service';
+
 @Injectable()
 export class OrderService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService // Tiêm NotificationService
+  ) {}
 
   async createOrder(createOrderDto: CreateOrderDto) {
-    const { user_id, status, totalAmount, createdAt, orderItems } = createOrderDto;
+    const { user_id, status, totalAmount, createdAt, orderItems,isCanceled,canceledAt } = createOrderDto;
 
+    console.log(createOrderDto, 'data');
     const newOrder = await this.prisma.$transaction(async (prisma) => {
+      // Kiểm tra giỏ hàng
+      const cart = await prisma.cart.findUnique({
+        where: { user_id },
+        include: { cartItems: true },
+      });
+
+      if (!cart || cart.cartItems.length === 0) {
+        throw new BadRequestException('Cart is empty');
+      }
+
       // Tạo đơn hàng mới
+      const totalAmountNumber = Number(totalAmount); // Chuyển đổi chuỗi "250.00" thành số 250.00
+      console.log(typeof totalAmountNumber);
+
       const order = await prisma.order.create({
         data: {
           user_id,
           status,
-          totalAmount,
+          isCanceled:true,
+          canceledAt:null,
+          totalAmount: totalAmountNumber, // Sử dụng số đã chuyển đổi
           createdAt: new Date(createdAt),
         },
       });
+      console.log(order);
 
       // Tạo các mục đơn hàng
       const orderItemsData = orderItems.map((item) => ({
@@ -34,6 +56,7 @@ export class OrderService {
       await prisma.orderItem.createMany({
         data: orderItemsData,
       });
+      console.log(orderItemsData);
 
       // Giảm số lượng sản phẩm trong kho
       for (const item of orderItems) {
@@ -61,6 +84,7 @@ export class OrderService {
           where: { stock_id: stock.stock_id },
           data: { quantity: stock.quantity - item.quantity },
         });
+        console.log(stock);
       }
 
       // Tạo invoice cho đơn hàng
@@ -68,8 +92,23 @@ export class OrderService {
         data: {
           order_id: order.order_id,
           date: new Date(), // Ngày tạo invoice là hiện tại
-          amount: totalAmount,
+          amount: totalAmountNumber,
         },
+      });
+      console.log(invoice);
+
+      // Xoá các mục trong giỏ hàng sau khi tạo đơn hàng
+      await prisma.cartItem.deleteMany({
+        where: { cart_id: cart.cart_id },
+      });
+
+      // Gửi thông báo cho người dùng
+      await this.notificationService.create({
+        user_id,
+        type: 'order_success',
+        message: `Your order with ID ${order.order_id} has been successfully created.`,
+        isRead: false, // Mặc định là chưa đọc
+        createdAt: new Date(),
       });
 
       return { order, invoice };
@@ -85,6 +124,28 @@ export class OrderService {
       data: {
         status,
         totalAmount,
+      },
+    });
+  }
+
+  async cancelOrder(order_id: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { order_id },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${order_id} not found`);
+    }
+
+    if (order.isCanceled) {
+      throw new BadRequestException('Order has already been canceled');
+    }
+
+    return this.prisma.order.update({
+      where: { order_id },
+      data: {
+        isCanceled: true,
+        canceledAt: new Date(),
       },
     });
   }
@@ -114,7 +175,11 @@ export class OrderService {
     return this.prisma.order.findMany({
       include: {
         user: true,
-        orderItems: true,
+        orderItems: {
+          include: {
+            product: true,
+          },
+        },
         invoice: true,
       },
     });

@@ -13,7 +13,6 @@ export class CreateInvoiceDto {
   date: Date;
 
   @ApiProperty({ example: 150.5, description: 'Total amount of the invoice' })
-  @IsNumber()
   @IsNotEmpty()
   amount: number;
 }

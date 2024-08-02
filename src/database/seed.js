@@ -46,7 +46,7 @@ function main() {
     return __awaiter(this, void 0, void 0, function () {
         function createProductImages() {
             return __awaiter(this, void 0, void 0, function () {
-                var productImages, productImageRecords, _loop_1, product_id, error_2;
+                var productImages, productImageRecords, _loop_1, product_id, error_3;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -95,32 +95,14 @@ function main() {
                             console.log('Product images created successfully');
                             return [3 /*break*/, 4];
                         case 3:
-                            error_2 = _a.sent();
-                            console.error('Error creating product images:', error_2);
+                            error_3 = _a.sent();
+                            console.error('Error creating product images:', error_3);
                             return [3 /*break*/, 4];
                         case 4: return [2 /*return*/];
                     }
                 });
             });
         }
-        // await prisma.review.createMany({
-        //     data: [
-        //         {
-        //             productId: 1,
-        //             userId: 1,
-        //             rating: 5,
-        //             comment: 'Great running shoes!',
-        //             createdAt: new Date(),
-        //         },
-        //         {
-        //             productId: 2,
-        //             userId: 2,
-        //             rating: 4,
-        //             comment: 'Very comfortable',
-        //             createdAt: new Date(),
-        //         },
-        //     ],
-        // });
         function createReviews() {
             return __awaiter(this, void 0, void 0, function () {
                 var reviews, productId, i, userId;
@@ -150,12 +132,12 @@ function main() {
                 });
             });
         }
-        var sizes, colors, stockData, productId, _i, sizes_1, size, _a, colors_1, color, error_1;
+        var error_1, sizes, colors, stockData, productId, _i, sizes_1, size, _a, colors_1, color, error_2;
         var _this = this;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 36, 37, 39]);
+                    _b.trys.push([0, 43, 44, 46]);
                     // Xóa hết dữ liệu trong các bảng
                     return [4 /*yield*/, prisma.favorite.deleteMany()];
                 case 1:
@@ -612,6 +594,76 @@ function main() {
                         })];
                 case 34:
                     _b.sent();
+                    _b.label = 35;
+                case 35:
+                    _b.trys.push([35, 38, 39, 41]);
+                    // Xóa hết dữ liệu trong bảng notification nếu có
+                    return [4 /*yield*/, prisma.notification.deleteMany()];
+                case 36:
+                    // Xóa hết dữ liệu trong bảng notification nếu có
+                    _b.sent();
+                    // Tạo dữ liệu mẫu cho bảng notification
+                    return [4 /*yield*/, prisma.notification.createMany({
+                            data: [
+                                {
+                                    user_id: 1,
+                                    type: 'Password Change',
+                                    message: 'Your password has been successfully changed.',
+                                    createdAt: new Date(),
+                                    isRead: false,
+                                },
+                                {
+                                    user_id: 2,
+                                    type: 'Address Update',
+                                    message: 'Your address information has been updated.',
+                                    createdAt: new Date(),
+                                    isRead: false,
+                                },
+                                {
+                                    user_id: 3,
+                                    type: 'Order Shipped',
+                                    message: 'Your order #12345 has been shipped.',
+                                    createdAt: new Date(),
+                                    isRead: false,
+                                },
+                                {
+                                    user_id: 4,
+                                    type: 'New Review',
+                                    message: 'A new review has been posted on your product.',
+                                    createdAt: new Date(),
+                                    isRead: false,
+                                },
+                                {
+                                    user_id: 5,
+                                    type: 'Account Activation',
+                                    message: 'Your account has been activated.',
+                                    createdAt: new Date(),
+                                    isRead: false,
+                                },
+                                {
+                                    user_id: 1,
+                                    type: 'Promotion',
+                                    message: 'Get 20% off on your next purchase.',
+                                    createdAt: new Date(),
+                                    isRead: false,
+                                },
+                                // Thêm các thông báo khác nếu cần
+                            ],
+                        })];
+                case 37:
+                    // Tạo dữ liệu mẫu cho bảng notification
+                    _b.sent();
+                    console.log('Notifications created successfully');
+                    return [3 /*break*/, 41];
+                case 38:
+                    error_1 = _b.sent();
+                    console.error('Error creating notifications:', error_1);
+                    return [3 /*break*/, 41];
+                case 39: return [4 /*yield*/, prisma.$disconnect()];
+                case 40:
+                    _b.sent();
+                    return [7 /*endfinally*/];
+                case 41:
                     sizes = ['S', 'M', 'L', 'XL'];
                     colors = ['Red', 'Black', 'White'];
                     stockData = [];
@@ -632,19 +684,19 @@ function main() {
                     return [4 /*yield*/, prisma.stock.createMany({
                             data: stockData,
                         })];
-                case 35:
+                case 42:
                     _b.sent();
                     console.log('Sample data created successfully');
-                    return [3 /*break*/, 39];
-                case 36:
-                    error_1 = _b.sent();
-                    console.error('Error creating sample data:', error_1);
-                    return [3 /*break*/, 39];
-                case 37: return [4 /*yield*/, prisma.$disconnect()];
-                case 38:
+                    return [3 /*break*/, 46];
+                case 43:
+                    error_2 = _b.sent();
+                    console.error('Error creating sample data:', error_2);
+                    return [3 /*break*/, 46];
+                case 44: return [4 /*yield*/, prisma.$disconnect()];
+                case 45:
                     _b.sent();
                     return [7 /*endfinally*/];
-                case 39: return [2 /*return*/];
+                case 46: return [2 /*return*/];
             }
         });
     });

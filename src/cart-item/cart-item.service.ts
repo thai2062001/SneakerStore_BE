@@ -68,7 +68,7 @@ export class CartItemService {
       include: {
         product: {
           include: {
-            images: true 
+            images: true  
           }
         }
       },

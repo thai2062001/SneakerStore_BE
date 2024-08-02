@@ -15,8 +15,8 @@ export class OrderController {
   @ApiOperation({ summary: 'Create a new order' })
   @ApiBearerAuth('access-token')
   @ApiBody({ type: CreateOrderDto })
-  @ApiResponse({ 
-    status: 201, 
+  @ApiResponse({
+    status: 201,
     description: 'The order has been successfully created.',
     type: CreateOrderDto,
   })
@@ -33,6 +33,16 @@ export class OrderController {
   @ApiResponse({ status: 200, description: 'The order has been successfully updated.' })
   async update(@Param('id', ParseIntPipe) id: number, @Body() updateOrderDto: UpdateOrderDto) {
     return this.orderService.updateOrder(id, updateOrderDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/cancel')
+  @ApiOperation({ summary: 'Cancel an existing order by ID' })
+  @ApiBearerAuth('access-token')
+  @ApiParam({ name: 'id', description: 'Order ID to cancel', type: Number })
+  @ApiResponse({ status: 200, description: 'The order has been successfully canceled.' })
+  async cancel(@Param('id', ParseIntPipe) id: number) {
+    return this.orderService.cancelOrder(id);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService // Tiêm NotificationService
+  ) {}
 
   async createUser(data: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -39,6 +43,14 @@ export class UserService {
   }
 
   async updateUser(user_id: number, data: UpdateUserDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { user_id },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${user_id} not found`);
+    }
+
     const updateData: any = {
       username: data.username,
       email: data.email,
@@ -49,6 +61,15 @@ export class UserService {
 
     if (data.password) {
       updateData.password = await bcrypt.hash(data.password, 10);
+
+      // Gửi thông báo cho người dùng khi mật khẩu được cập nhật
+      await this.notificationService.create({
+        user_id,
+        type: 'password_change',
+        message: `Your password has been successfully updated.`,
+        isRead: false, // Mặc định là chưa đọc
+        createdAt: new Date(),
+      });
     }
 
     return this.prisma.user.update({

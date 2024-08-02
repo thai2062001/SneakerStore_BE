@@ -50,6 +50,32 @@ export class ReviewService {
     }
     return review;
   }
+  async getReviewsByProductId(productId: string) {
+    // Chuyển đổi productId từ string sang number
+    const parsedProductId = parseInt(productId, 10);
+  
+    // Kiểm tra nếu productId không phải là số hợp lệ
+    if (isNaN(parsedProductId)) {
+      throw new Error('Invalid productId: expected a number.');
+    }
+  
+    // Tìm tất cả các review liên quan đến sản phẩm
+    const reviews = await this.prisma.review.findMany({
+      where: {
+        productId: parsedProductId,
+      },
+      include: {
+        product: true, // Bao gồm thông tin sản phẩm nếu cần
+        user: true,    // Bao gồm thông tin người dùng nếu cần
+      },
+    });
+  
+    if (!reviews || reviews.length === 0) {
+      throw new NotFoundException(`No reviews found for product with ID ${parsedProductId}`);
+    }
+  
+    return reviews;
+  }
 
   async getAllReviews() {
     return this.prisma.review.findMany({

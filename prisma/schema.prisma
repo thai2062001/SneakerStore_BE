@@ -27,6 +27,7 @@ model User {
   favorites     Favorite[]
   carts         Cart[]
   role          Role      @relation(fields: [role_id], references: [role_id])
+   notifications  Notification[] 
 }
 
 model Address {
@@ -127,13 +128,26 @@ model Favorite {
 model Order {
   order_id      Int        @id @default(autoincrement())
   user_id       Int
-  status        String
+  status        String     // New field for tracking order status
   totalAmount   Float
   createdAt     DateTime   @default(now())
+  isCanceled    Boolean    @default(false) // New field for tracking cancellation status
+  canceledAt    DateTime?  // New field for the time of cancellation
   user          User       @relation(fields: [user_id], references: [user_id])
   orderItems    OrderItem[]
   invoice       Invoice?
 }
+
+model Notification {
+  notification_id Int       @id @default(autoincrement())
+  user_id         Int
+  type            String    // Type of notification (e.g., "password_change", "order_success")
+  message         String    // Notification message
+  isRead    Boolean  @default(false)
+  createdAt       DateTime  @default(now())
+  user            User      @relation(fields: [user_id], references: [user_id])
+}
+
 
 model OrderItem {
   orderItem_id  Int      @id @default(autoincrement())
